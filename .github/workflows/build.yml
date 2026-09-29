@@ -1,19 +1,26 @@
-name: Build iOS Tweak
+name: Build iOS App
 on: [push]
 jobs:
   build:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: Randomblock1/theos-action@v1
-      with:
-        theos-dir: 'theos'
-    - name: Build Tweak
+    
+    - name: Setup Theos and SDKs
       run: |
-        cd ${{ github.workspace }}
+        export THEOS=$HOME/theos
+        git clone --recursive https://github.com/theos/theos.git $THEOS
+        cd $THEOS
+        git clone https://github.com/theos/sdks.git
+        brew install ldid dpkg
+        echo "THEOS=$THEOS" >> $GITHUB_ENV
+
+    - name: Build App
+      run: |
         make package FINALPACKAGE=1
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: tweak
+        name: app-package
         path: packages/*.deb
