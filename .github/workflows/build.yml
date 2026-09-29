@@ -2,23 +2,17 @@ name: Build iOS App
 on: [push]
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
+    container:
+      image: kabiroberai/theos-docker:latest
     steps:
     - uses: actions/checkout@v4
     
-    - name: Setup Theos and SDKs
+    - name: Build Package
       run: |
-        export THEOS=$HOME/theos
-        git clone --recursive https://github.com/theos/theos.git $THEOS
-        cd $THEOS
-        git clone https://github.com/theos/sdks.git
-        brew install ldid dpkg
-        echo "THEOS=$THEOS" >> $GITHUB_ENV
-
-    - name: Build App
-      run: |
+        export THEOS=/opt/theos
         make package FINALPACKAGE=1
-
+    
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
